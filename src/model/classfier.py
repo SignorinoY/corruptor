@@ -46,8 +46,11 @@ class HARBaseClassfier(pl.LightningModule):
         self.log_dict({"val_loss": loss, "val_acc": self.val_acc})
 
     def test_step(self, batch, batch_idx):
-        x, _ = batch
+        x, y = batch
         y_hat = self(x)
+        preds = y_hat.argmax(dim=1)
+        loss = F.nll_loss(preds, y)
+        self.log('test_loss', loss)
         return y_hat
 
     def configure_optimizers(self):
@@ -56,7 +59,7 @@ class HARBaseClassfier(pl.LightningModule):
     @staticmethod
     def add_model_specific_args(parent_parser):
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
-        parser.add_argument("--learning_rate", type=float, default=0.0001)
+        parser.add_argument("--learning_rate", type=float, default=0.005)
         return parser
 
 
@@ -65,8 +68,8 @@ class HARLSTMClassfier(HARBaseClassfier):
     def __init__(self, learning_rate):
         super().__init__(learning_rate=learning_rate)
 
-        self.lstm = nn.LSTM(9, 32, 2)
-        self.fc = nn.Linear(32, 6)
+        self.lstm = nn.LSTM(9, 256, 2)
+        self.fc = nn.Linear(256, 6)
 
     def forward(self, x):
         x, _ = self.lstm(x)
@@ -80,8 +83,8 @@ class HARBiLSTMClassfier(HARBaseClassfier):
     def __init__(self, learning_rate):
         super().__init__(learning_rate=learning_rate)
 
-        self.lstm = nn.LSTM(9, 16, 2, bidirectional=True)
-        self.fc = nn.Linear(32, 6)
+        self.lstm = nn.LSTM(9, 128, 2, bidirectional=True)
+        self.fc = nn.Linear(256, 6)
 
     def forward(self, x):
         x, _ = self.lstm(x)

@@ -17,8 +17,8 @@ def main():
     parser.add_argument("--data_dir", type=str, default="./data/")
     parser.add_argument("--model_dir", type=str, default="./model/")
     parser.add_argument("--log_dir", type=str, default="./log/")
-    parser.add_argument("--batch_size", type=int, default=64)
-    parser.add_argument("--num_workers", type=int, default=8)
+    parser.add_argument("--batch_size", type=int, default=256)
+    parser.add_argument("--num_workers", type=int, default=16)
     parser.add_argument("--pin_memory", type=bool, default=True)
     parser = pl.Trainer.add_argparse_args(parser)
     parser = HARLSTMClassfier.add_model_specific_args(parser)
@@ -37,7 +37,7 @@ def main():
     elif args.model == "bilstm":
         model = HARBiLSTMClassfier(args.learning_rate)
 
-    early_stop_callback = EarlyStopping(monitor="val_loss")
+    early_stop_callback = EarlyStopping(monitor="val_loss", patience=10)
     checkpoint_callback = ModelCheckpoint(
         dirpath=args.model_dir,
         filename="har-" + args.model + "-{epoch:02d}-{val_loss:.2f}",
