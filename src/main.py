@@ -5,7 +5,7 @@ from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
 
 from data.har import HARDataModule
-from model.classfier import HARLSTMClassfier
+from model.classfier import HARLSTMClassfier, HARBiLSTMClassfier
 
 
 def main():
@@ -13,6 +13,7 @@ def main():
 
     # args
     parser = ArgumentParser()
+    parser.add_argument("--model", type=str, default="lstm")
     parser.add_argument("--data_dir", type=str, default="./data/")
     parser.add_argument("--model_dir", type=str, default="./model/")
     parser.add_argument("--log_dir", type=str, default="./log/")
@@ -31,15 +32,19 @@ def main():
     data.setup()
 
     # model
-    model = HARLSTMClassfier(args.learning_rate)
+    if args.model == "lstm":
+        model = HARLSTMClassfier(args.learning_rate)
+    elif args.model == "bilstm":
+        model = HARBiLSTMClassfier(args.learning_rate)
+
     early_stop_callback = EarlyStopping(monitor="val_loss")
     checkpoint_callback = ModelCheckpoint(
         dirpath=args.model_dir,
-        filename="har-lstm-{epoch:02d}-{val_loss:.2f}",
+        filename="har-" + args.model + "-{epoch:02d}-{val_loss:.2f}",
         monitor="val_loss",
     )
     logger = TensorBoardLogger(
-        save_dir=args.log_dir, name="LSTM", log_graph=True)
+        save_dir=args.log_dir, name=args.model.upper(), log_graph=True)
     trainer = pl.Trainer.from_argparse_args(
         args,
         callbacks=[early_stop_callback, checkpoint_callback],

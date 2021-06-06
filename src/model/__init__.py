@@ -1,1 +1,1 @@
-from .classfier import HARLSTMClassfier
+from .classfier import HARLSTMClassfier, HARBiLSTMClassfier
