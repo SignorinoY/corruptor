@@ -73,3 +73,16 @@ class HARLSTMClassfier(HARBaseClassfier):
         return x
 
 
+class HARBiLSTMClassfier(HARBaseClassfier):
+
+    def __init__(self, learning_rate):
+        super().__init__(learning_rate=learning_rate)
+
+        self.lstm = nn.LSTM(9, 16, 2, bidirectional=True)
+        self.fc = nn.Linear(32, 6)
+
+    def forward(self, x):
+        x, _ = self.lstm(x)
+        x = self.fc(x[:, -1, :])
+        x = F.softmax(x, dim=1)
+        return x
