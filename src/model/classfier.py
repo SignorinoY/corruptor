@@ -31,16 +31,18 @@ class HARBaseClassfier(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self(x)
-        loss = F.cross_entropy(y_hat, y)
-        self.train_acc(y_hat, y)
+        loss = F.nll_loss(y_hat, y)
+        preds = y_hat.argmax(dim=1)
+        self.train_acc(preds, y)
         self.log_dict({"train_loss": loss, "train_acc": self.train_acc})
         return loss
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self(x)
-        loss = F.cross_entropy(y_hat, y)
-        self.val_acc(y_hat, y)
+        loss = F.nll_loss(y_hat, y)
+        preds = y_hat.argmax(dim=1)
+        self.val_acc(preds, y)
         self.log_dict({"val_loss": loss, "val_acc": self.val_acc})
 
     def test_step(self, batch, batch_idx):
@@ -69,7 +71,7 @@ class HARLSTMClassfier(HARBaseClassfier):
     def forward(self, x):
         x, _ = self.lstm(x)
         x = self.fc(x[:, -1, :])
-        x = F.softmax(x, dim=1)
+        x = F.log_softmax(x, dim=1)
         return x
 
 
@@ -84,5 +86,5 @@ class HARBiLSTMClassfier(HARBaseClassfier):
     def forward(self, x):
         x, _ = self.lstm(x)
         x = self.fc(x[:, -1, :])
-        x = F.softmax(x, dim=1)
+        x = F.log_softmax(x, dim=1)
         return x
