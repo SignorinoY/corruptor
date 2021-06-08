@@ -451,5 +451,9 @@ Thumbs.db
 # profiling data
 .prof
 
-data/*
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
 log/*
