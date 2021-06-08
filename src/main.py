@@ -15,7 +15,7 @@ def main():
     parser = ArgumentParser()
     parser.add_argument("--model", type=str, default="lstm")
     parser.add_argument("--data_dir", type=str, default="./data/")
-    parser.add_argument("--model_dir", type=str, default="./model/")
+    parser.add_argument("--model_dir", type=str, default="./models/")
     parser.add_argument("--log_dir", type=str, default="./log/")
     parser.add_argument("--batch_size", type=int, default=256)
     parser.add_argument("--num_workers", type=int, default=16)
